@@ -1,0 +1,25 @@
+addons:
+  - name: "Argo Workflows"
+    versions: ["v3.5.6", "v3.5.7", "v3.5.8"]
+    installation_guide: "install-argo-workflows.sh"
+    readiness_steps:
+      - name: "Resource Health Check"
+        command: |
+          export NAMESPACE=argo
+          kubectl --namespace $NAMESPACE get deployments
+        expected_output: |
+          NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+          argo-server           1/1     1            1           5m37s
+          workflow-controller   1/1     1            1           5m36s
+      - name: "API Readiness Check"
+        command: |
+          export NAMESPACE=argo
+          WORKFLOW_CONTROLLER_POD_IP=$(kubectl -n $NAMESPACE get pod -l <WORKFLOW_CONTROLLER_POD_NAME> -o jsonpath='{.status.podIP}')
+          kubectl run chkk-argo-workflows-health-check --image=curlimages/curl -i --tty -- sh -c "curl http://$WORKFLOW_CONTROLLER_POD_IP:6060/healthz"
+        expected_output: "ok"
+      - name: "End-to-End Verification"
+        command: |
+          argo submit -n argo --watch https://raw.githubusercontent.com/argoproj/argo-workflows/main/examples/hello-world.yaml
+          argo list -n argo
+        expected_output: |
+          hello-world   Succeeded   59s   20s        0
