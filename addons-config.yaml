@@ -1,4 +1,9 @@
-addons:
-  - name: "Argo Workflows"
-    versions: ["v3.5.6", "v3.5.7", "v3.5.8"]
-    installation_guide: "install-argo-workflows.sh"
+{
+  "addons": [
+    {
+      "name": "Argo Workflows",
+      "versions": ["v3.5.6", "v3.5.7", "v3.5.8"],
+      "installation_guide": "install-argo-workflows.sh"
+    }
+  ]
+}
